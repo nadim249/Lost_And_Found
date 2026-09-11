@@ -18,6 +18,7 @@ import {
   Calendar,
   AlertTriangle,
   User,
+  X,
 } from "lucide-react";
 
 export default function ItemDetails() {
@@ -282,14 +283,24 @@ export default function ItemDetails() {
       {/* Lightbox Modal */}
       {lightboxOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/80 p-4 backdrop-blur-sm cursor-zoom-out"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-zinc-950/80 p-3 sm:p-4 backdrop-blur-sm cursor-zoom-out"
           onClick={() => setLightboxOpen(false)}
         >
-          <img
-            src={activeImage || item.images?.[0]}
-            alt={item.title}
-            className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg shadow-2xl"
-          />
+          <div className="relative max-h-[90vh] max-w-[90vw]" onClick={(e) => e.stopPropagation()}>
+            <img
+              src={activeImage || item.images?.[0]}
+              alt={item.title}
+              className="max-h-[85vh] max-w-[90vw] object-contain rounded-lg shadow-2xl"
+            />
+            <button
+              type="button"
+              onClick={() => setLightboxOpen(false)}
+              className="absolute -top-3 -right-3 h-8 w-8 rounded-full bg-zinc-900/90 text-white flex items-center justify-center hover:bg-zinc-800 shadow-md cursor-pointer"
+              aria-label="Close image preview"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          </div>
         </div>
       )}
 

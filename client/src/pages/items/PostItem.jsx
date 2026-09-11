@@ -158,11 +158,11 @@ export default function PostItem() {
                   <p className="text-[11px] font-medium text-zinc-500">
                     Attached images ({files.length})
                   </p>
-                  <div className="flex flex-wrap gap-2">
+                  <div className="flex flex-wrap gap-2.5">
                     {files.map((f, i) => (
                       <div
                         key={i}
-                        className="group relative overflow-hidden rounded-md border border-zinc-200 bg-zinc-100 flex h-14 w-14"
+                        className="relative overflow-hidden rounded-md border border-zinc-200 bg-zinc-100 flex h-16 w-16"
                       >
                         <img
                           src={URL.createObjectURL(f)}
@@ -173,10 +173,11 @@ export default function PostItem() {
                         <button
                           type="button"
                           onClick={() => removeFile(i)}
-                          className="absolute inset-0 flex items-center justify-center bg-zinc-900/60 opacity-0 group-hover:opacity-100 transition-opacity text-white"
+                          className="absolute top-1 right-1 flex h-5 w-5 items-center justify-center rounded-full bg-zinc-900/80 text-white hover:bg-rose-600 transition-colors shadow-xs cursor-pointer"
                           title="Remove image"
+                          aria-label="Remove image"
                         >
-                          <Trash2 className="h-3.5 w-3.5" />
+                          <Trash2 className="h-3 w-3" />
                         </button>
                       </div>
                     ))}
@@ -188,7 +189,7 @@ export default function PostItem() {
             <div className="pt-2">
               <button
                 type="submit"
-                className="btn-primary w-full py-2 text-xs font-medium"
+                className="btn-primary w-full py-2.5 text-xs font-semibold"
                 disabled={submitting}
               >
                 {submitting ? "Publishing listing..." : "Publish Listing"}

@@ -85,8 +85,8 @@ export default function ClaimRequests() {
       </div>
 
       {/* Tabs */}
-      <div className="mb-6 border-b border-zinc-200">
-        <nav className="flex gap-4">
+      <div className="mb-6 border-b border-zinc-200 overflow-x-auto">
+        <nav className="flex gap-4 min-w-max pb-px">
           <Link
             to="/claims/mine"
             className="pb-2.5 text-xs font-medium border-b-2 border-transparent text-zinc-500 hover:text-zinc-900 transition-colors"
@@ -156,7 +156,7 @@ export default function ClaimRequests() {
                       <span>•</span>
                       <span className="flex items-center gap-1 text-zinc-500">
                         <Mail className="h-3 w-3 text-zinc-400" />
-                        <span>{c.claimant?.email}</span>
+                        <span className="truncate max-w-[140px] sm:max-w-none">{c.claimant?.email}</span>
                       </span>
                       <span>•</span>
                       <span className="flex items-center gap-1 text-zinc-400">
@@ -200,7 +200,7 @@ export default function ClaimRequests() {
                 </div>
 
                 {/* Status & Actions */}
-                <div className="shrink-0 flex flex-row md:flex-col items-start md:items-end justify-between md:justify-start gap-2.5 border-t md:border-t-0 pt-3 md:pt-0 border-zinc-100">
+                <div className="shrink-0 flex flex-row md:flex-col items-center md:items-end justify-between md:justify-start gap-2.5 border-t md:border-t-0 pt-3 md:pt-0 border-zinc-100">
                   <span
                     className={`inline-flex items-center rounded-md px-2 py-0.5 text-[10px] font-medium border leading-none ${status === "APPROVED"
                         ? "bg-emerald-50 text-emerald-800 border-emerald-200/80"
@@ -213,19 +213,19 @@ export default function ClaimRequests() {
                   </span>
 
                   {status === "PENDING" && (
-                    <div className="flex gap-1.5">
+                    <div className="flex items-center gap-1.5">
                       <button
-                        className="btn-success text-xs py-1 px-2.5 rounded-md flex items-center gap-1"
+                        className="btn-success text-xs py-1.5 px-3 rounded-md flex items-center gap-1"
                         onClick={() => decide(c.id, "APPROVED")}
                       >
-                        <Check className="h-3 w-3" />
+                        <Check className="h-3.5 w-3.5" />
                         <span>Approve</span>
                       </button>
                       <button
-                        className="btn-secondary text-xs py-1 px-2.5 rounded-md text-red-600 hover:bg-red-50 hover:text-red-700 flex items-center gap-1"
+                        className="btn-secondary text-xs py-1.5 px-2.5 rounded-md text-red-600 hover:bg-red-50 hover:text-red-700 flex items-center gap-1"
                         onClick={() => decide(c.id, "REJECTED")}
                       >
-                        <X className="h-3 w-3" />
+                        <X className="h-3.5 w-3.5" />
                         <span>Reject</span>
                       </button>
                     </div>
@@ -234,10 +234,10 @@ export default function ClaimRequests() {
                   {status === "APPROVED" &&
                     c.item?.status === "PENDING_CLAIM" && (
                       <button
-                        className="btn-primary text-xs py-1 px-2.5 rounded-md flex items-center gap-1"
+                        className="btn-primary text-xs py-1.5 px-3 rounded-md flex items-center gap-1"
                         onClick={() => markResolved(c.itemId)}
                       >
-                        <CheckCircle2 className="h-3 w-3" />
+                        <CheckCircle2 className="h-3.5 w-3.5" />
                         <span>Mark Resolved</span>
                       </button>
                     )}

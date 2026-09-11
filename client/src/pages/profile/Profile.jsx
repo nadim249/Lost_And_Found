@@ -238,7 +238,6 @@ export default function Profile() {
             </div>
           ) : (
             <div className="overflow-hidden rounded-lg border border-zinc-200 bg-white shadow-xs">
-              {/* Desktop Table View */}
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-xs border-collapse">
                   <thead>
@@ -247,7 +246,7 @@ export default function Profile() {
                       <th className="py-2.5 px-3">Category</th>
                       <th className="py-2.5 px-3">Type</th>
                       <th className="py-2.5 px-3">Status</th>
-                      <th className="py-2.5 px-3">Created</th>
+                      <th className="py-2.5 px-3 hidden sm:table-cell">Created</th>
                       <th className="py-2.5 px-4 text-right">Actions</th>
                     </tr>
                   </thead>
@@ -274,7 +273,7 @@ export default function Profile() {
                               <div className="min-w-0">
                                 <Link
                                   to={`/items/${it.id}`}
-                                  className="font-medium text-xs text-zinc-900 hover:text-zinc-600 block truncate max-w-[200px] sm:max-w-xs"
+                                  className="font-medium text-xs text-zinc-900 hover:text-zinc-600 block truncate max-w-[160px] sm:max-w-xs"
                                 >
                                   {it.title}
                                 </Link>
@@ -318,8 +317,8 @@ export default function Profile() {
                             </span>
                           </td>
 
-                          {/* Date Column */}
-                          <td className="py-2.5 px-3 text-zinc-400 whitespace-nowrap text-[11px]">
+                          {/* Date Column (hidden on mobile for compact view) */}
+                          <td className="py-2.5 px-3 text-zinc-400 whitespace-nowrap text-[11px] hidden sm:table-cell">
                             {formatDate(it.createdAt)}
                           </td>
 
@@ -522,7 +521,7 @@ export default function Profile() {
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label className="label">Category</label>
                 <input

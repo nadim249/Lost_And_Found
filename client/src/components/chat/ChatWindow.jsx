@@ -3,10 +3,10 @@ import { useSocket } from "../../context/SocketContext";
 import { useAuth } from "../../context/AuthContext";
 import { chatApi } from "../../api/chat.api";
 import MessageBubble from "./MessageBubble";
-import { SendHorizontal, MessageSquareDashed } from "lucide-react";
+import { SendHorizontal, MessageSquareDashed, ArrowLeft } from "lucide-react";
 
 // Renders the active conversation's message history feed and user input container
-export default function ChatWindow({ conversation }) {
+export default function ChatWindow({ conversation, onBack }) {
   const { user } = useAuth();
   const {
     joinConversation,
@@ -103,30 +103,44 @@ export default function ChatWindow({ conversation }) {
   };
 
   return (
-    <div className="card border border-[#e8e8ed] shadow-none flex h-[70vh] flex-col overflow-hidden bg-white">
-      <div className="flex items-center gap-3 border-b border-[#e8e8ed] px-4 py-3 bg-[#f5f5f7]/40 shrink-0">
-        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#f5f5f7] border border-[#e8e8ed] text-[10px] font-bold text-[#1d1d1f]">
+    <div className="card border border-zinc-200 rounded-lg shadow-xs flex h-[calc(100dvh-180px)] min-h-[460px] lg:h-[70vh] flex-col overflow-hidden bg-white">
+      {/* Header */}
+      <div className="flex items-center gap-2.5 border-b border-zinc-200 px-3.5 py-2.5 bg-zinc-50/70 shrink-0">
+        {onBack && (
+          <button
+            type="button"
+            onClick={onBack}
+            className="lg:hidden p-1.5 -ml-1 text-zinc-500 hover:text-zinc-900 rounded-md hover:bg-zinc-200/60 transition-colors"
+            title="Back to conversations"
+            aria-label="Back to conversations"
+          >
+            <ArrowLeft className="h-4 w-4" />
+          </button>
+        )}
+
+        <div className="flex h-8 w-8 items-center justify-center rounded-full bg-zinc-100 border border-zinc-200 text-xs font-semibold text-zinc-900 shrink-0">
           {(other?.name?.[0] ?? "?").toUpperCase()}
         </div>
-        <div className="min-w-0">
-          <p className="text-xs font-bold text-[#1d1d1f] leading-tight">
+        <div className="min-w-0 flex-1">
+          <p className="text-xs font-semibold text-zinc-900 leading-tight truncate">
             {other?.name ?? "User"}
           </p>
-          <p className="text-[10px] text-slate-400 truncate mt-0.5">
+          <p className="text-[10px] text-zinc-400 truncate mt-0.5">
             {other?.email}
           </p>
         </div>
       </div>
 
+      {/* Messages */}
       <div
         ref={listRef}
-        className="flex-1 space-y-3 overflow-y-auto bg-white px-5 py-5 scroll-smooth"
+        className="flex-1 space-y-3 overflow-y-auto bg-white px-3 sm:px-5 py-4 scroll-smooth"
       >
         {messages.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full text-center text-xs text-slate-450 py-10">
-            <MessageSquareDashed className="h-6 w-6 text-slate-300 mb-2" />
-            <p className="font-bold text-[#1d1d1f]">No messages yet</p>
-            <p className="text-[10px] text-slate-400 mt-0.5">
+          <div className="flex flex-col items-center justify-center h-full text-center text-xs text-zinc-400 py-10">
+            <MessageSquareDashed className="h-6 w-6 text-zinc-300 mb-2" />
+            <p className="font-semibold text-zinc-800">No messages yet</p>
+            <p className="text-[11px] text-zinc-400 mt-0.5">
               Send a message to start conversation.
             </p>
           </div>
@@ -140,26 +154,27 @@ export default function ChatWindow({ conversation }) {
           ))
         )}
         {typingUser?.isTyping && (
-          <div className="flex items-center gap-1.5 text-[10px] font-semibold text-slate-400 italic bg-[#f5f5f7] border border-[#e8e8ed] w-fit px-2.5 py-1 rounded-full">
+          <div className="flex items-center gap-1.5 text-[10px] font-medium text-zinc-400 italic bg-zinc-100 border border-zinc-200 w-fit px-2.5 py-1 rounded-full">
             <span>typing...</span>
           </div>
         )}
       </div>
 
+      {/* Form */}
       <form
         onSubmit={onSubmit}
-        className="flex items-center gap-2 border-t border-[#e8e8ed] px-4 py-3 bg-white shrink-0"
+        className="flex items-center gap-2 border-t border-zinc-200 px-3 sm:px-4 py-2.5 bg-white shrink-0"
       >
         <input
-          className="input pr-12 focus:bg-white"
-          placeholder="Type your message here..."
+          className="input pr-10 focus:bg-white text-xs"
+          placeholder="Type your message..."
           value={input}
           onChange={(e) => onChange(e.target.value)}
         />
 
         <button
           type="submit"
-          className="btn-primary rounded-xl shrink-0 p-2.5"
+          className="btn-primary rounded-lg shrink-0 p-2 sm:px-3 sm:py-1.5"
           disabled={sending || input.trim().length === 0}
           title="Send message"
         >

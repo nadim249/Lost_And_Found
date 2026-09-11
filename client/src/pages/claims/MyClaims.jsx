@@ -48,8 +48,8 @@ export default function MyClaims() {
       </div>
 
       {/* Tabs */}
-      <div className="mb-6 border-b border-zinc-200">
-        <nav className="flex gap-4">
+      <div className="mb-6 border-b border-zinc-200 overflow-x-auto">
+        <nav className="flex gap-4 min-w-max pb-px">
           <Link
             to="/claims/mine"
             className="pb-2.5 text-xs font-medium border-b-2 border-zinc-900 text-zinc-900"

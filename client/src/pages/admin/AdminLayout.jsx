@@ -65,10 +65,10 @@ export default function AdminLayout() {
       </div>
 
       <nav
-        className="sticky top-[56px] z-10 -mx-4 sm:-mx-6 border-b border-[#e8e8ed] bg-[#f5f5f7]/85 px-4 sm:px-6 py-2 backdrop-blur-md backdrop-blur-header"
+        className="sticky top-[52px] z-10 -mx-4 sm:-mx-6 border-b border-zinc-200 bg-white/90 px-4 sm:px-6 py-2 backdrop-blur-md"
         aria-label="Admin sections"
       >
-        <ul className="flex gap-1 overflow-x-auto py-0.5">
+        <ul className="flex gap-1.5 overflow-x-auto py-0.5 min-w-max pb-1 sm:pb-0.5">
           {TABS.map((tab) => {
             const isActive = tab.key === active;
             const Icon = tab.icon;
@@ -76,10 +76,10 @@ export default function AdminLayout() {
               <li key={tab.key} className="shrink-0">
                 <Link
                   to={tab.to}
-                  className={`flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold rounded-lg transition-all duration-200 ${
+                  className={`flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg transition-all duration-150 ${
                     isActive
-                      ? "text-[#1d1d1f] bg-white border border-[#e8e8ed] shadow-[0_1px_2px_rgba(0,0,0,0.015)]"
-                      : "text-[#515154] hover:text-[#1d1d1f] hover:bg-white/40"
+                      ? "text-zinc-900 bg-zinc-100 border border-zinc-200/80 shadow-2xs"
+                      : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50"
                   }`}
                   aria-current={isActive ? "page" : undefined}
                 >
