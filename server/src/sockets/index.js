@@ -16,10 +16,11 @@ const getSocketToken = (socket) => {
 };
 
 // Initializes the Socket.io WebSocket server
-export const createSocketServer = (httpServer, clientOrigin) => {
+export const createSocketServer = (httpServer) => {
   const io = new Server(httpServer, {
     cors: {
-      origin: clientOrigin,
+      origin: true,
+      credentials: true,
     },
     transports: ["websocket", "polling"],
   });

@@ -18,13 +18,23 @@ import { createSocketServer } from "./sockets/index.js";
 
 const app = express();
 const PORT = Number(process.env.PORT ?? 4000);
-const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN ?? "http://localhost:5173";
+const normalizeOrigin = (url) => {
+  if (!url || url === "*") return "*";
+  let cleaned = url.trim().replace(/\/$/, "");
+  if (!/^https?:\/\//i.test(cleaned)) {
+    cleaned = `https://${cleaned}`;
+  }
+  return cleaned;
+};
+
+const CLIENT_ORIGIN = normalizeOrigin(process.env.CLIENT_ORIGIN ?? "http://localhost:5173");
 
 // Middlewares
 app.use(helmet());
 app.use(
   cors({
-    origin: process.env.NODE_ENV === "production" ? CLIENT_ORIGIN : true,
+    origin: true,
+    credentials: true,
   }),
 );
 app.use(express.json());
