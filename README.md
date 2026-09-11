@@ -18,7 +18,7 @@ A modern, full-stack, real-time web platform designed to help communities report
 - 🔍 **Search & Filter**: Quickly find items by keyword, status (Lost/Found), or category.
 - 💬 **Real-Time Messaging**: Chat directly with item posters in real-time powered by **Socket.io**.
 - 🔔 **Live Notifications**: Get instant alerts for incoming messages and listing updates.
-- 🔒 **Secure Auth**: Authentication using JWTs in secure, HTTP-only cookies and password recovery via email.
+- 🔒 **Secure Auth**: Standard single JWT token authentication and password recovery via email.
 - 🖼️ **Image Hosting**: Cloud-hosted images with fast CDN delivery via **Cloudinary**.
 - 📱 **Clean Responsive UI**: Minimalist, responsive design built with Tailwind CSS and Lucide icons.
 
