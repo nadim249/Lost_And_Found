@@ -1,0 +1,137 @@
+datasource db {
+  provider = "postgresql"
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum ItemType {
+  LOST
+  FOUND
+}
+
+enum ItemStatus {
+  OPEN
+  PENDING_CLAIM
+  RESOLVED
+}
+
+enum ClaimStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ReportStatus {
+  OPEN
+  RESOLVED
+  DISMISSED
+}
+
+model User {
+  id            String         @id @default(uuid())
+  name          String
+  email         String         @unique
+  passwordHash  String
+  phone         String?
+  avatarUrl     String?
+  role          Role           @default(USER)
+  isBanned      Boolean        @default(false)
+  createdAt     DateTime       @default(now())
+  updatedAt     DateTime       @updatedAt
+
+  items         Item[]
+  claims        Claim[]
+  reportsFiled  Report[]       @relation("Reporter")
+  messagesSent  Message[]      @relation("SentMessages")
+  conversations ConversationParticipant[]
+  notifications Notification[]
+}
+
+model Item {
+  id          String      @id @default(uuid())
+  title       String
+  description String
+  category    String
+  type        ItemType
+  location    String
+  images      String[]
+  status      ItemStatus  @default(OPEN)
+  userId      String
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  claims      Claim[]
+  reports     Report[]
+}
+
+model Claim {
+  id               String      @id @default(uuid())
+  itemId           String
+  item             Item        @relation(fields: [itemId], references: [id], onDelete: Cascade)
+  claimantId       String
+  claimant         User        @relation(fields: [claimantId], references: [id], onDelete: Cascade)
+  proofDescription String
+  proofImages      String[]
+  status           ClaimStatus @default(PENDING)
+  createdAt        DateTime    @default(now())
+  updatedAt        DateTime    @updatedAt
+}
+
+model Conversation {
+  id           String                    @id @default(uuid())
+  createdAt    DateTime                  @default(now())
+  updatedAt    DateTime                  @updatedAt
+  participants ConversationParticipant[]
+  messages     Message[]
+}
+
+model ConversationParticipant {
+  id             String       @id @default(uuid())
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, conversationId])
+}
+
+model Message {
+  id             String       @id @default(uuid())
+  conversationId String
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  senderId       String
+  sender         User         @relation("SentMessages", fields: [senderId], references: [id], onDelete: Cascade)
+  messageText    String
+  isRead         Boolean      @default(false)
+  createdAt      DateTime     @default(now())
+}
+
+model Report {
+  id          String       @id @default(uuid())
+  reporterId  String
+  reporter    User         @relation("Reporter", fields: [reporterId], references: [id], onDelete: Cascade)
+  itemId      String?
+  item        Item?        @relation(fields: [itemId], references: [id], onDelete: SetNull)
+  reason      String
+  status      ReportStatus @default(OPEN)
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
