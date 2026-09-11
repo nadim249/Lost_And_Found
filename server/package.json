@@ -1,0 +1,36 @@
+{
+  "name": "lost-and-found-server",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Lost & Found backend - Express + Prisma + Socket.io",
+  "main": "src/server.js",
+  "scripts": {
+    "dev": "node --watch src/server.js",
+    "build": "prisma generate",
+    "start": "node src/server.js",
+    "lint": "echo 'no lint configured'",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "prisma:seed": "node prisma/seed.js",
+    "prisma:studio": "prisma studio"
+  },
+  "dependencies": {
+    "@prisma/adapter-pg": "^7.10.0",
+    "@prisma/client": "^7.10.0",
+    "bcryptjs": "^3.0.3",
+    "cloudinary": "^2.11.0",
+    "cors": "^2.8.5",
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "helmet": "^8.1.0",
+    "jsonwebtoken": "^9.0.2",
+    "multer": "^2.3.0",
+    "nodemailer": "^10.0.1",
+    "pg": "^8.23.0",
+    "socket.io": "^4.8.1"
+  },
+  "devDependencies": {
+    "prisma": "^7.10.0"
+  }
+}
