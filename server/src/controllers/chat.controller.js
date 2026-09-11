@@ -6,24 +6,6 @@ import { HttpError } from "../middleware/error.middleware.js";
 export const listConversations = async (req, res) => {
   if (!req.user) throw new HttpError(401, "Authentication required");
 
-  // Clean up any empty conversations (0 messages) older than 10 seconds
-  const emptyConvs = await prisma.conversation.findMany({
-    where: {
-      participants: { some: { userId: req.user.id } },
-      messages: { none: {} },
-      createdAt: { lt: new Date(Date.now() - 10 * 1000) },
-    },
-    select: { id: true },
-  });
-
-  if (emptyConvs.length > 0) {
-    await prisma.conversation.deleteMany({
-      where: {
-        id: { in: emptyConvs.map((c) => c.id) },
-      },
-    });
-  }
-
   const conversations = await prisma.conversation.findMany({
     where: { participants: { some: { userId: req.user.id } } },
     orderBy: { updatedAt: "desc" },
@@ -87,7 +69,7 @@ export const startConversation = async (req, res) => {
     include: { participants: true },
   });
 
-  if (found && found.participants.length === 2) {
+  if (found) {
     ok(res, { id: found.id });
     return;
   }
@@ -95,7 +77,7 @@ export const startConversation = async (req, res) => {
   const conversation = await prisma.conversation.create({
     data: {
       participants: {
-        create: [{ userId: req.user.id }, { userId: body.otherUserId }],
+        create: [{ userId: req.user.id }, { userId: otherUserId }],
       },
     },
   });
@@ -139,7 +121,8 @@ export const getMessages = async (req, res) => {
 // Sends a message within a conversation
 export const sendMessage = async (req, res) => {
   if (!req.user) throw new HttpError(401, "Authentication required");
-  const { conversationId, messageText } = req.body || {};
+  const conversationId = req.params.id || req.body?.conversationId;
+  const messageText = req.body?.messageText;
   if (!conversationId || typeof conversationId !== "string") {
     throw new HttpError(400, "Valid conversationId is required");
   }
@@ -180,7 +163,7 @@ export const sendMessage = async (req, res) => {
       data: {
         userId: others[0].userId,
         title: "New message",
-        message: `${req.user.name}: ${body.messageText.slice(0, 80)}`,
+        message: `${req.user.name}: ${cleanText.slice(0, 80)}`,
       },
     });
   }

@@ -59,8 +59,8 @@ export const registerChatHandlers = (io, socket) => {
         data: { updatedAt: new Date() },
       });
 
-      // Broadcast the new message to everyone in the room (including sender)
-      io.to(conversationId).emit("new_message", {
+      // Broadcast the new message to everyone in the conversation room
+      const messageData = {
         id: message.id,
         conversationId: message.conversationId,
         senderId: message.senderId,
@@ -68,7 +68,39 @@ export const registerChatHandlers = (io, socket) => {
         messageText: message.messageText,
         isRead: message.isRead,
         createdAt: message.createdAt.toISOString(),
+      };
+
+      io.to(conversationId).emit("new_message", messageData);
+
+      // Also notify other participants via their personal user rooms
+      const conversation = await prisma.conversation.findUnique({
+        where: { id: conversationId },
+        include: { participants: true },
       });
+
+      if (conversation) {
+        const others = conversation.participants.filter(
+          (p) => p.userId !== currentUserId,
+        );
+        for (const other of others) {
+          io.to(`user:${other.userId}`).emit("new_message", messageData);
+          try {
+            await prisma.notification.create({
+              data: {
+                userId: other.userId,
+                title: "New message",
+                message: `${message.sender?.name || "User"}: ${message.messageText.slice(0, 80)}`,
+              },
+            });
+            io.to(`user:${other.userId}`).emit("new_notification", {
+              title: "New message",
+              message: `${message.sender?.name || "User"}: ${message.messageText.slice(0, 80)}`,
+            });
+          } catch {
+            // Ignore notification failure
+          }
+        }
+      }
 
       ack?.({ ok: true, messageId: message.id });
     } catch (err) {

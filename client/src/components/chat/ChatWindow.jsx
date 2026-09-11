@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import toast from "react-hot-toast";
 import { useSocket } from "../../context/SocketContext";
 import { useAuth } from "../../context/AuthContext";
 import { chatApi } from "../../api/chat.api";
@@ -30,8 +31,8 @@ export default function ChatWindow({ conversation, onBack }) {
   useEffect(() => {
     let cancelled = false;
     const setup = async () => {
-      const joinResp = await joinConversation(conversation.id);
-      if (!joinResp.ok) return;
+      // Attempt socket join in background without blocking API fetch
+      joinConversation(conversation.id).catch(() => undefined);
       try {
         const res = await chatApi.messages(conversation.id);
         if (!cancelled && res.data) setMessages(res.data);
@@ -94,11 +95,33 @@ export default function ChatWindow({ conversation, onBack }) {
     const text = input.trim();
     if (!text || sending) return;
     setSending(true);
-    const resp = await sendMessage(conversation.id, text);
-    setSending(false);
-    if (resp.ok) {
-      setInput("");
-      emitTyping(conversation.id, false);
+
+    try {
+      let sent = false;
+      const resp = await sendMessage(conversation.id, text);
+      if (resp?.ok) {
+        sent = true;
+      } else {
+        // Fallback to HTTP REST API if socket fails or is disconnected
+        const res = await chatApi.send(conversation.id, text);
+        if (res?.data) {
+          setMessages((prev) =>
+            prev.some((x) => x.id === res.data.id) ? prev : [...prev, res.data],
+          );
+          sent = true;
+        }
+      }
+
+      if (sent) {
+        setInput("");
+        emitTyping(conversation.id, false);
+      } else {
+        toast.error("Could not send message. Please try again.");
+      }
+    } catch (err) {
+      toast.error(err?.response?.data?.message || "Failed to send message");
+    } finally {
+      setSending(false);
     }
   };
 

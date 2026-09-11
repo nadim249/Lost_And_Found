@@ -1,12 +1,14 @@
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../../context/AuthContext";
+import { useSocket } from "../../context/SocketContext";
 import { chatApi } from "../../api/chat.api";
 import { Bell, Plus, LogOut, Menu, X } from "lucide-react";
 
 // Main application navigation header component
 export default function Navbar() {
   const { user, logout, loading } = useAuth();
+  const { on } = useSocket();
   const [notifOpen, setNotifOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [notifs, setNotifs] = useState([]);
@@ -30,8 +32,14 @@ export default function Navbar() {
     if (!user) return;
     loadNotifs();
     const id = setInterval(loadNotifs, 60_000);
-    return () => clearInterval(id);
-  }, [user]);
+    const unsub1 = on?.("new_notification", loadNotifs);
+    const unsub2 = on?.("new_message", loadNotifs);
+    return () => {
+      clearInterval(id);
+      unsub1?.();
+      unsub2?.();
+    };
+  }, [user, on]);
 
   // Close popovers on outside click
   useEffect(() => {

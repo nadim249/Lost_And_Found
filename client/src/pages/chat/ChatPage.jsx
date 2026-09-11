@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useParams } from "react-router-dom";
 import { chatApi } from "../../api/chat.api";
 import { useAuth } from "../../context/AuthContext";
+import { useSocket } from "../../context/SocketContext";
 import ConversationList from "../../components/chat/ConversationList";
 import ChatWindow from "../../components/chat/ChatWindow";
 import Loader from "../../components/common/Loader";
@@ -9,41 +10,68 @@ import { MessageSquare, ArrowLeftRight } from "lucide-react";
 
 export default function ChatPage() {
   const { user } = useAuth();
+  const { on } = useSocket();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { conversationId: routeConversationId } = useParams();
   const [list, setList] = useState([]);
   const [active, setActive] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  const activeId = searchParams.get("c");
+  const activeId = searchParams.get("c") || routeConversationId;
 
-  useEffect(() => {
-    let cancelled = false;
-    chatApi
+  const fetchConversations = (selectId) => {
+    return chatApi
       .conversations()
       .then((r) => {
-        if (cancelled) return;
         const conversations = r.data ?? [];
         setList(conversations);
         if (conversations.length > 0) {
-          const match = activeId
-            ? conversations.find((c) => c.id === activeId)
+          const targetId = selectId || activeId;
+          const match = targetId
+            ? conversations.find((c) => c.id === targetId)
             : null;
-          // On mobile screens, only activate if explicit c query param is present
           const isMobile = window.innerWidth < 1024;
           if (match) {
             setActive(match);
-          } else if (!isMobile && !activeId) {
+          } else if (!isMobile && !targetId) {
             setActive(conversations[0]);
           }
         }
       })
-      .finally(() => {
-        if (!cancelled) setLoading(false);
-      });
+      .catch(() => undefined);
+  };
+
+  useEffect(() => {
+    let cancelled = false;
+    fetchConversations(activeId).finally(() => {
+      if (!cancelled) setLoading(false);
+    });
     return () => {
       cancelled = true;
     };
   }, [activeId]);
+
+  // Real-time conversation list updates
+  useEffect(() => {
+    const unsub = on("new_message", (msg) => {
+      setList((prev) => {
+        const idx = prev.findIndex((c) => c.id === msg.conversationId);
+        if (idx === -1) {
+          fetchConversations();
+          return prev;
+        }
+        const updated = [...prev];
+        const conv = {
+          ...updated[idx],
+          lastMessage: msg,
+          updatedAt: msg.createdAt,
+        };
+        updated.splice(idx, 1);
+        return [conv, ...updated];
+      });
+    });
+    return () => unsub?.();
+  }, [on]);
 
   const handleSelectConversation = (c) => {
     setActive(c);

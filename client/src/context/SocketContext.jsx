@@ -69,10 +69,14 @@ export const SocketProvider = ({ children }) => {
   // Join a conversation room
   const joinConversation = useCallback((conversationId) => {
     return new Promise((resolve) => {
-      if (!socketRef.current) {
+      if (!socketRef.current || !socketRef.current.connected) {
         return resolve({ ok: false, error: "Socket not connected" });
       }
+      const timer = setTimeout(() => {
+        resolve({ ok: false, error: "Join timeout" });
+      }, 5000);
       socketRef.current.emit("join_conversation", { conversationId }, (resp) => {
+        clearTimeout(timer);
         resolve(resp || { ok: true });
       });
     });
@@ -86,13 +90,17 @@ export const SocketProvider = ({ children }) => {
   // Send a message to a conversation
   const sendMessage = useCallback((conversationId, messageText) => {
     return new Promise((resolve) => {
-      if (!socketRef.current) {
+      if (!socketRef.current || !socketRef.current.connected) {
         return resolve({ ok: false, error: "Socket not connected" });
       }
+      const timer = setTimeout(() => {
+        resolve({ ok: false, error: "Message send timeout" });
+      }, 5000);
       socketRef.current.emit(
         "send_message",
         { conversationId, messageText },
         (resp) => {
+          clearTimeout(timer);
           resolve(resp || { ok: true });
         },
       );

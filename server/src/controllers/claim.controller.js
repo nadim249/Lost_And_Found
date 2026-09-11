@@ -158,7 +158,7 @@ export const decideClaim = async (req, res) => {
         claimant: { select: { id: true, name: true, email: true } },
       },
     });
-    if (body.status === "APPROVED") {
+    if (status === "APPROVED") {
       await tx.item.update({
         where: { id: claim.itemId },
         data: { status: "PENDING_CLAIM" },
@@ -179,7 +179,7 @@ export const decideClaim = async (req, res) => {
     data: {
       userId: claim.claimantId,
       title: "Claim update",
-      message: `Your claim on "${claim.item.title}" was ${body.status.toLowerCase()}`,
+      message: `Your claim on "${claim.item.title}" was ${status.toLowerCase()}`,
     },
   });
 
